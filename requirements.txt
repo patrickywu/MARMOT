@@ -10,4 +10,5 @@ collections
 sklearn
 PIL
 torch
+torchvision
 transformers
