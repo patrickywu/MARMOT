@@ -1,14 +1,11 @@
-math
 pandas
 numpy
 pathlib
-os
 matplotlib
-time
-random
-collections
 sklearn
-PIL
+sklearn-pandas
+Pillow
 torch
+torchtext
 torchvision
 transformers
