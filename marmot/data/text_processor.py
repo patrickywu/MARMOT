@@ -1,4 +1,5 @@
 from transformers import BertTokenizer
+from torch import nn
 
 class text_processor(nn.Module):
     def __init__(self, bert_model, device):
