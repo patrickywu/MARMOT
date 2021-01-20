@@ -4,8 +4,8 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
-
-
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class TextImageDatasetBinary(Dataset):
     def __init__(self, data, docid_varname, text_varname, img_varname, caption_varname, label_varname=None,
@@ -27,7 +27,7 @@ class TextImageDatasetBinary(Dataset):
                     continue
                 # Check to see if they are not less than some given minimum size
                 if os.path.getsize(img_path) < byte_min_cleanup:
-                    self.data.loc[i,'picfiles'] = "foo.jpg"
+                    self.data.loc[i,'picfiles'] = img_filler
                     self.data.loc[i, 'pic'] = 0
 
         # Check for missing images
@@ -55,20 +55,23 @@ class TextImageDatasetBinary(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
+        """Read in Doc ID"""
+        doc_id = self.doc_id[idx]
+
+        """Read in Text"""
+        text = self.text[idx]
+
         """Read in Image"""
         img_name = self.base_dir/self.image[idx]
         image_raw = Image.open(img_name).convert('RGB')
         image_raw = np.asarray(image_raw)
         image = self.transform(image_raw)
 
-        """Read in Text"""
-        text = self.text[idx]
-
-        """Read in Doc ID"""
-        doc_id = self.doc_id[idx]
-
         """Read in Image Caption"""
         image_caption = self.image_caption[idx]
+
+        """Read in Pic Status"""
+        pic = self.pic[idx]
 
         """Read in Labels"""
         if not self.test:
