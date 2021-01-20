@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
+from pathlib import Path
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -62,7 +63,7 @@ class TextImageDatasetBinary(Dataset):
         text = self.text[idx]
 
         """Read in Image"""
-        img_name = self.base_dir/self.image[idx]
+        img_name = self.imgs_dir/self.image[idx]
         image_raw = Image.open(img_name).convert('RGB')
         image_raw = np.asarray(image_raw)
         image = self.transform(image_raw)
