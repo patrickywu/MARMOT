@@ -22,10 +22,10 @@ class marmot(nn.Module):
                                        nn.Dropout(p=dropout_p_final_clf),
                                        nn.Linear(intermediate_layer_final_clf, num_classes))
 
-    def forward(self, img, caption_ii, caption_tti, caption_am, text_ii, text_tti, text_am):
+    def forward(self, img, pic, caption_ii, caption_tti, caption_am, text_ii, text_tti, text_am):
 
         # Translate image
-        img_translated = self.ImageTranslator(img=img, caption_ii=caption_ii, caption_tti=caption_tti, caption_am=caption_am)
+        img_translated = self.ImageTranslator(img=img, caption_ii=caption_ii, caption_tti=caption_tti, caption_am=caption_am*pic.unsqueeze(-1))
 
         # Create position embeddings
         pos_text = torch.arange(text_ii.shape[1], dtype=torch.long).to(img.device)
@@ -39,7 +39,7 @@ class marmot(nn.Module):
         tti = torch.cat((text_tti, tti_caption, img_translated_tti), dim=1)
 
         # Create attention masks to input
-        am = torch.cat((text_am, caption_am, caption_am), dim=1)
+        am = torch.cat((text_am, caption_am*pic.unsqueeze(-1), caption_am*pic.unsqueeze(-1)), dim=1)
 
         # Obtain inputs embeds
         text_embeds = self.bert_clf.embeddings.word_embeddings(text_ii)
