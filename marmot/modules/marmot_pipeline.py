@@ -1,4 +1,6 @@
 from marmot.modules.image_transformer import image_transformer
+from torch import nn
+from transformers import BertModel, BertConfig
 
 class marmot(nn.Module):
     def __init__(self, bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768,
