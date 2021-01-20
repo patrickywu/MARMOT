@@ -1,5 +1,6 @@
 from torch import nn
 import torch.nn.functional as F
+from transformers import BertModel, BertConfig
 
 class image_transformer(nn.Module):
     def __init__(self, bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768):
