@@ -45,6 +45,7 @@ class TextImageDatasetBinary(Dataset):
         self.text = self.data[text_varname].values
         self.image = self.data[img_varname].values
         self.image_caption = self.data[caption_varname].values
+        self.pic = self.data['pic'].values
 
         if not test:
             self.label = self.data[label_varname].values
@@ -79,8 +80,8 @@ class TextImageDatasetBinary(Dataset):
             label = self.label[idx]
 
         if not self.test:
-            sample = {'id': doc_id, 'image': image, 'image_caption': image_caption, 'text': text, 'label': label}
+            sample = {'id': doc_id, 'image': image, 'image_caption': image_caption, 'text': text, 'pic': pic, 'label': label}
         else:
-            sample = {'id': doc_id, 'image': image, 'image_caption': image_caption, 'text': text}
+            sample = {'id': doc_id, 'image': image, 'image_caption': image_caption, 'pic': pic, 'text': text}
 
         return sample
