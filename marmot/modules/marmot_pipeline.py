@@ -1,4 +1,5 @@
 from marmot.modules.image_transformer import image_transformer
+import torch
 from torch import nn
 from transformers import BertModel, BertConfig
 
