@@ -2,7 +2,7 @@ from image_transformer import image_transformer
 
 class marmot(nn.Module):
     def __init__(self, bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768,
-                 dropout_p_final_clf=0.1, intermediate_layer_final_clf=768*4, num_classes=2):
+                dropout_p_final_clf=0.1, intermediate_layer_final_clf=768*4, num_classes=2):
         super().__init__()
 
         # Image Translator
