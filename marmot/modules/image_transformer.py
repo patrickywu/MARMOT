@@ -1,4 +1,4 @@
-import torch 
+import torch
 from torch import nn
 import torch.nn.functional as F
 from transformers import BertModel, BertConfig
@@ -24,7 +24,7 @@ class image_transformer(nn.Module):
 
         # Process the image
         img_feats = self.pretrained_image_model(img)
-        img_feats = img_feats.reshape(img.shape[0],self.pretrained_image_dim, self.pretrained_image_dim, self.pretrained_image_dim)
+        img_feats = img_feats.reshape(img.shape[0], self.pretrained_image_channels, self.pretrained_image_dim, self.pretrained_image_dim)
         img_feats_encoder = self.encoder_img_feats(img_feats)
         img_feats_encoder = img_feats_encoder.flatten(2).permute(0,2,1)
 
