@@ -5,7 +5,7 @@ import time
 from sklearn.metrics import f1_score, accuracy_score, roc_auc_score, confusion_matrix, classification_report, precision_score, recall_score
 
 # a modification of run_glue.py, found here: https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py
-def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_rate, batch_size,
+def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs, learning_rate, batch_size,
                   gradient_clipping=False, proportion_warmup_steps=0.1, weight=None, device='cuda'):
 
     optimizer = AdamW(model.parameters(),
@@ -23,7 +23,7 @@ def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_ra
 
     scheduler = get_cosine_schedule_with_warmup(optimizer=optimizer, num_warmup_steps=proportion_warmup_steps*total_steps, num_training_steps=total_steps, num_cycles=0.5)
 
-    tp = text_processor(device=device)
+    tp = text_processor(bert_model=bert_model, device=device)
 
     # Training
     for epoch in range(epochs):
