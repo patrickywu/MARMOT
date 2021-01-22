@@ -41,9 +41,10 @@ def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs,
             text_ii, text_tti, text_am = tp.extract_bert_inputs(batch['text'])
 
             img = batch['image'].to(device)
+            pic = batch['pic'].to(device)
             label = batch['label'].to(device)
 
-            out, _ = model(img=img, caption_ii=caption_ii, caption_tti=caption_tti, caption_am=caption_am, text_ii=text_ii, text_tti=text_tti, text_am=text_am)
+            out, _ = model(img=img, pic=pic, caption_ii=caption_ii, caption_tti=caption_tti, caption_am=caption_am, text_ii=text_ii, text_tti=text_tti, text_am=text_am)
             loss = F.cross_entropy(input=out.view(-1,2), target=label, weight=weight, reduction='mean')
 
             train_loss += loss.item()
@@ -73,10 +74,11 @@ def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs,
             text_ii, text_tti, text_am = tp.extract_bert_inputs(val['text'])
 
             img = val['image'].to(device)
+            pic = val['pic'].to(device)
             val_label = val['label'].to(device)
 
             with torch.no_grad():
-                val_out, _ = model(img, caption_ii, caption_tti, caption_am, text_ii, text_tti, text_am)
+                val_out, _ = model(img, pic, caption_ii, caption_tti, caption_am, text_ii, text_tti, text_am)
                 val_out = val_out.view(-1,2)
                 val_proba = F.softmax(val_out, dim=1)
                 val_predicted = torch.argmax(val_out, dim=1)
