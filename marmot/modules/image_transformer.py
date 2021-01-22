@@ -14,7 +14,7 @@ class image_transformer(nn.Module):
         self.pretrained_image_channels = pretrained_image_channels
         self.pretrained_image_dim = pretrained_image_dim
         self.bert_dim = bert_dim
-        self.encoder_img_feats = nn.Conv2d(pretrained_image_dim, bert_dim, 1)
+        self.encoder_img_feats = nn.Conv2d(self.pretrained_image_channels, bert_dim, 1)
 
         # Image Decoder
         ImageDecoder_config = BertConfig.from_pretrained(bert_model, is_decoder=True, add_cross_attention=True, output_attentions=True)
