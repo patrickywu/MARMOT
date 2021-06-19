@@ -14,6 +14,7 @@ class TextImageDatasetBinary(Dataset):
         self.test = test
         self.label_varname = label_varname
         self.data = data
+        self.windows = windows
         if not windows:
             self.imgs_dir = Path(imgs_dir)
         else:
@@ -75,7 +76,10 @@ class TextImageDatasetBinary(Dataset):
         text = self.text[idx]
 
         """Read in Image"""
-        img_name = self.imgs_dir/self.image[idx]
+        if windows:
+            img_name = Path(self.imgs_dir + '/' + str(self.image[idx]))
+        else:
+            img_name = self.imgs_dir/self.image[idx]
         image_raw = Image.open(img_name).convert('RGB')
         image_raw = np.asarray(image_raw)
         image = self.transform(image_raw)
