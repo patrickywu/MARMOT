@@ -7,8 +7,23 @@ import time
 from sklearn.metrics import f1_score, accuracy_score, roc_auc_score, confusion_matrix, classification_report, precision_score, recall_score
 
 # a modification of run_glue.py, found here: https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py
-def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs, learning_rate, batch_size,
-                  gradient_clipping=False, proportion_warmup_steps=0.1, weight=None, device='cuda'):
+def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_rate, batch_size,
+                   epoch_freeze_img=0, epoch_freeze_txt=0, gradient_clipping=False, gc_value=1.0, proportion_warmup_steps=0.1, weight=None, device='cuda'):
+    '''
+    model: the MARMOT model input
+    train_dataset: the training data
+    validation_dataset: the validation data
+    epochs: number of epochs
+    learning_rate: the learning rate used for the AdamW optimizer
+    batch_size: the batch size
+    epoch_freeze_img: the number of epochs to freeze the image translator
+    epoch_freeze_txt: the number of epochs to freeze the BERT encoder
+    gradient_clipping: whether to activate gradient clipping or not (by default, clips at 1.0)
+    gc_value: gradient clipping value
+    proportion_warmup_steps: how many steps to warm up in the optimizer
+    weight: if any weight on the two classes
+    device: whether to run on CPU or GPU
+    '''
 
     optimizer = AdamW(model.parameters(),
                       lr = learning_rate,
@@ -25,13 +40,31 @@ def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs,
 
     scheduler = get_cosine_schedule_with_warmup(optimizer=optimizer, num_warmup_steps=proportion_warmup_steps*total_steps, num_training_steps=total_steps, num_cycles=0.5)
 
-    tp = text_processor(bert_model=bert_model, device=device)
+    tp = text_processor(bert_model=model.bert_model, device=device)
 
     # Training
     for epoch in range(epochs):
         model.train()
         start_time = time.time()
         train_loss = 0
+
+        if epoch < epoch_freeze_img:
+            for param in model.ImageTranslator.ImageDecoder.parameters():
+                param.requires_grad = False
+        else:
+            for param in model.ImageTranslator.ImageDecoder.parameters():
+                param.requires_grad = True
+
+        if epoch < epoch_freeze_txt:
+            for param in model.bert_clf.parameters():
+                param.requires_grad = False
+            for param in model.final_clf.parameters():
+                param.requires_grad = False
+        else:
+            for param in model.bert_clf.parameters():
+                param.requires_grad = True
+            for param in model.final_clf.parameters():
+                param.requires_grad = True
 
         for step, batch in enumerate(train_dataloader):
             if step % 40 == 0 and step != 0:
@@ -53,7 +86,7 @@ def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs,
 
             loss.backward()
             if gradient_clipping:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0) # prevent exploding gradients issue
+                torch.nn.utils.clip_grad_norm_(model.parameters(), gc_value) # prevent exploding gradients issue
             optimizer.step()
             scheduler.step()
             model.zero_grad()
@@ -124,9 +157,9 @@ def binary_trainer(model, bert_model, train_dataset, validation_dataset, epochs,
 
     return val_accuracy, val_f1_weighted, val_f1_macro, val_f1, val_precision, val_recall, val_rocauc, avg_val_loss
 
-def tester(model, bert_model, test_dataset):
+def tester(model, test_dataset):
     test_dataloader = DataLoader(test_dataset)
-    tp = text_processor(bert_model=bert_model, device=device)
+    tp = text_processor(bert_model=model.bert_model, device=device)
 
     id_list = []
     proba_list = []

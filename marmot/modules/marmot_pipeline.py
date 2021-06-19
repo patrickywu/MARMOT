@@ -8,11 +8,14 @@ class marmot(nn.Module):
                 dropout_p_final_clf=0.1, intermediate_layer_final_clf=768*4, num_classes=2):
         super().__init__()
 
+        # Record the bert_model
+        self.bert_model = bert_model
+
         # Image Translator
-        self.ImageTranslator = image_transformer(bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768)
+        self.ImageTranslator = image_transformer(self.bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768)
 
         # Encoder
-        self.bert_clf = BertModel.from_pretrained(bert_model, output_attentions=True)
+        self.bert_clf = BertModel.from_pretrained(self.bert_model, output_attentions=True)
         triple_tti = nn.Embedding(3, 768)
         triple_tti.weight.data[:2].copy_(self.bert_clf.embeddings.token_type_embeddings.weight)
         triple_tti.weight.data[2].copy_(self.bert_clf.embeddings.token_type_embeddings.weight.data.mean(dim=0) +

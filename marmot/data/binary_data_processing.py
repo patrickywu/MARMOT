@@ -9,19 +9,36 @@ from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class TextImageDatasetBinary(Dataset):
-    def __init__(self, data, docid_varname, text_varname, img_varname, caption_varname, label_varname=None,
-                imgs_dir='/', img_filler='foo.jpg', test=False, transform=None, cleanup=False, byte_min_cleanup=1000):
+    def __init__(self, data, docid_varname, text_varname, img_varname, caption_varname, label_varname,
+                imgs_dir='/', img_filler='foo.jpg', test=False, transform=None, cleanup=False, byte_min_cleanup=1000, windows=False):
         self.test = test
         self.label_varname = label_varname
         self.data = data
-        self.imgs_dir = Path(imgs_dir)
+        if not windows:
+            self.imgs_dir = Path(imgs_dir)
 
         self.transform = transform
+
+        # Check for missing images
+        self.data['pic'] = 1
+        for i in range(len(self.data)):
+            if windows:
+                img_path = Path(self.imgs_dir + '/' + str(self.data.loc[i, img_varname]))
+            else:
+                img_path = self.imgs_dir/self.data.loc[i, img_varname]
+            # Check to see if file paths exists
+            if not os.path.isfile(img_path):
+                self.data.loc[i, img_varname] = img_filler
+                self.data.loc[i, 'pic'] = 0
+                continue
 
         # Clean up if there are messy images
         if cleanup:
             for i in range(len(self.data)):
-                img_path = self.imgs_dir/self.data.loc[i, img_varname]
+                if windows:
+                    img_path = Path(self.imgs_dir + '/' + str(self.data.loc[i, img_varname]))
+                else:
+                    img_path = self.imgs_dir/self.data.loc[i, img_varname]
                 if self.IsNaN(self.data.loc[i, img_varname]):
                     self.data.loc[i, img_varname] = img_filler
                     self.data.loc[i, 'pic'] = 0
@@ -31,15 +48,7 @@ class TextImageDatasetBinary(Dataset):
                     self.data.loc[i,'picfiles'] = img_filler
                     self.data.loc[i, 'pic'] = 0
 
-        # Check for missing images
-        self.data['pic'] = 1
-        for i in range(len(self.data)):
-            img_path = self.imgs_dir/self.data.loc[i, img_varname]
-            # Check to see if file paths exists
-            if not os.path.isfile(img_path):
-                self.data.loc[i, img_varname] = img_filler
-                self.data.loc[i, 'pic'] = 0
-                continue
+
 
         self.doc_id = self.data[docid_varname].values
         self.text = self.data[text_varname].values
@@ -85,3 +94,6 @@ class TextImageDatasetBinary(Dataset):
             sample = {'id': doc_id, 'image': image, 'image_caption': image_caption, 'pic': pic, 'text': text}
 
         return sample
+
+    def IsNaN(self, string):
+        return string != string
