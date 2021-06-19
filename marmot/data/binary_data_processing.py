@@ -76,7 +76,7 @@ class TextImageDatasetBinary(Dataset):
         text = self.text[idx]
 
         """Read in Image"""
-        if windows:
+        if self.windows:
             img_name = Path(self.imgs_dir + '/' + str(self.image[idx]))
         else:
             img_name = self.imgs_dir/self.image[idx]
