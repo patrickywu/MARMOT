@@ -12,11 +12,11 @@ class marmot(nn.Module):
         self.bert_model = bert_model
 
         # Image Translator
-        self.ImageTranslator = image_transformer(self.bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=768)
+        self.ImageTranslator = image_transformer(self.bert_model, image_model, pretrained_image_channels=2048, pretrained_image_dim=7, bert_dim=bert_dim)
 
         # Encoder
         self.bert_clf = BertModel.from_pretrained(self.bert_model, output_attentions=True)
-        triple_tti = nn.Embedding(3, 768)
+        triple_tti = nn.Embedding(3, bert_dim)
         triple_tti.weight.data[:2].copy_(self.bert_clf.embeddings.token_type_embeddings.weight)
         triple_tti.weight.data[2].copy_(self.bert_clf.embeddings.token_type_embeddings.weight.data.mean(dim=0) +
                                         torch.randn(self.bert_clf.embeddings.token_type_embeddings.weight.data.mean(dim=0).size())*0.01)
