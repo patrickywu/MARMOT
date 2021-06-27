@@ -32,7 +32,7 @@ class bert_textcaption_pipeline(nn.Module):
         super().__init__()
         # Record the bert_model
         self.bert_model = bert_model
-        
+
         # Encoder
         self.bert_clf = BertModel.from_pretrained(self.bert_model, output_attentions=True)
 
@@ -44,9 +44,9 @@ class bert_textcaption_pipeline(nn.Module):
 
     def forward(self, pic, caption_ii, caption_tti, caption_am, text_ii, text_tti, text_am):
         # Create position embeddings
-        pos_text = torch.arange(text_ii.shape[1], dtype=torch.long).to(img.device)
+        pos_text = torch.arange(text_ii.shape[1], dtype=torch.long).to(text_ii.device)
         pos_text = pos_text.unsqueeze(0).expand(text_ii.shape[0], text_ii.shape[1])
-        pos_caption = torch.arange(caption_ii.shape[1], dtype=torch.long).to(img.device)
+        pos_caption = torch.arange(caption_ii.shape[1], dtype=torch.long).to(text_ii.device)
         pos_caption = pos_caption.unsqueeze(0).expand(caption_ii.shape[0], caption_ii.shape[1])
         pos = torch.cat((pos_text, pos_caption), dim=1)
 
