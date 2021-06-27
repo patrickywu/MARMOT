@@ -32,9 +32,7 @@ class bert_textcaption_pipeline(nn.Module):
         super().__init__()
         # Record the bert_model
         self.bert_model = bert_model
-
-        self.bert_clf.embeddings.token_type_embeddings = triple_tti
-
+        
         # Encoder
         self.bert_clf = BertModel.from_pretrained(self.bert_model, output_attentions=True)
 
