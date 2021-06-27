@@ -38,8 +38,18 @@ def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_ra
 
     total_steps = epochs*len(train_dataloader)
 
-    scheduler = get_cosine_schedule_with_warmup(optimizer=optimizer, num_warmup_steps=proportion_warmup_steps*total_steps, num_training_steps=total_steps, num_cycles=0.5)
+    def get_linear_then_cosine_schedule_with_warmup(optimizer, num_warmup_steps, num_training_steps, num_freeze_steps, num_cycles=0.5):
+        def lr_lambda(current_step: int):
+            if current_step < num_warmup_steps:
+                return float(current_step) / float(max(1.0, num_warmup_steps))
+            elif current_step < num_freeze_steps:
+                return 1.0
+            else:
+                progress = float(current_step - num_warmup_steps - num_freeze_steps) / float(max(1, num_training_steps - num_warmup_steps - num_freeze_steps))
+                return max(0.0, 0.5 * (1.0 + math.cos(math.pi * float(num_cycles) * 2.0 * progress)))
+        return LambdaLR(optimizer, lr_lambda)
 
+    scheduler = get_linear_then_cosine_schedule_with_warmup(optimizer=optimizer, num_warmup_steps=proportion_warmup_steps*total_steps, num_training_steps=total_steps, num_freeze_steps=epoch_freeze_txt*len(train_dataloader))
     tp = text_processor(bert_model=model.bert_model, device=device)
 
     # Training
