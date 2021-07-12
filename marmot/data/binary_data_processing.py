@@ -15,7 +15,7 @@ class TextImageDatasetBinary(Dataset):
         self.label_varname = label_varname
         self.data = data
         self.windows = windows
-        self.imgs_dir = Path(imgs_dir)
+        self.imgs_dir = imgs_dir
 
         self.transform = transform
 
@@ -25,7 +25,7 @@ class TextImageDatasetBinary(Dataset):
             if windows:
                 img_path = Path(self.imgs_dir + '/' + str(self.data.loc[i, img_varname]))
             else:
-                img_path = self.imgs_dir/self.data.loc[i, img_varname]
+                img_path = Path(self.imgs_dir)/self.data.loc[i, img_varname]
             # Check to see if file paths exists
             if not os.path.isfile(img_path):
                 self.data.loc[i, img_varname] = img_filler
@@ -38,7 +38,7 @@ class TextImageDatasetBinary(Dataset):
                 if windows:
                     img_path = Path(self.imgs_dir + '/' + str(self.data.loc[i, img_varname]))
                 else:
-                    img_path = self.imgs_dir/self.data.loc[i, img_varname]
+                    img_path = Path(self.imgs_dir)/self.data.loc[i, img_varname]
                 if self.IsNaN(self.data.loc[i, img_varname]):
                     self.data.loc[i, img_varname] = img_filler
                     self.data.loc[i, 'pic'] = 0
@@ -76,7 +76,7 @@ class TextImageDatasetBinary(Dataset):
         if self.windows:
             img_name = Path(self.imgs_dir + '/' + str(self.image[idx]))
         else:
-            img_name = self.imgs_dir/self.image[idx]
+            img_name = Path(self.imgs_dir)/self.image[idx]
         image_raw = Image.open(img_name).convert('RGB')
         image_raw = np.asarray(image_raw)
         image = self.transform(image_raw)
