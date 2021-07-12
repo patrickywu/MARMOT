@@ -60,23 +60,24 @@ def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_ra
         start_time = time.time()
         train_loss = 0
 
-        if epoch < epoch_freeze_img:
-            for param in model.ImageTranslator.ImageDecoder.parameters():
-                param.requires_grad = False
-        else:
-            for param in model.ImageTranslator.ImageDecoder.parameters():
-                param.requires_grad = True
+        if epoch_freeze_img > 0 or epoch_freeze_txt > 0:
+            if epoch < epoch_freeze_img:
+                for param in model.ImageTranslator.ImageDecoder.parameters():
+                    param.requires_grad = False
+            else:
+                for param in model.ImageTranslator.ImageDecoder.parameters():
+                    param.requires_grad = True
 
-        if epoch < epoch_freeze_txt:
-            for param in model.bert_clf.parameters():
-                param.requires_grad = False
-            for param in model.final_clf.parameters():
-                param.requires_grad = False
-        else:
-            for param in model.bert_clf.parameters():
-                param.requires_grad = True
-            for param in model.final_clf.parameters():
-                param.requires_grad = True
+            if epoch < epoch_freeze_txt:
+                for param in model.bert_clf.parameters():
+                    param.requires_grad = False
+                for param in model.final_clf.parameters():
+                    param.requires_grad = False
+            else:
+                for param in model.bert_clf.parameters():
+                    param.requires_grad = True
+                for param in model.final_clf.parameters():
+                    param.requires_grad = True
 
         for step, batch in enumerate(train_dataloader):
             if step % 40 == 0 and step != 0:
