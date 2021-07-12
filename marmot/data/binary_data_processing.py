@@ -15,10 +15,7 @@ class TextImageDatasetBinary(Dataset):
         self.label_varname = label_varname
         self.data = data
         self.windows = windows
-        if not windows:
-            self.imgs_dir = Path(imgs_dir)
-        else:
-            self.imgs_dir = imgs_dir
+        self.imgs_dir = Path(imgs_dir)
 
         self.transform = transform
 
