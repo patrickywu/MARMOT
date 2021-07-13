@@ -170,7 +170,7 @@ def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_ra
 
     return val_accuracy, val_f1_weighted, val_f1_macro, val_f1, val_precision, val_recall, val_rocauc, avg_val_loss
 
-def tester(model, test_dataset):
+def tester(model, test_dataset, device='cuda'):
     test_dataloader = DataLoader(test_dataset)
     tp = text_processor(bert_model=model.bert_model, device=device)
 
