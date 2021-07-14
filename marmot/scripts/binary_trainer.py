@@ -7,6 +7,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup, get_cosine_sche
 import time
 import math
 from sklearn.metrics import f1_score, accuracy_score, roc_auc_score, confusion_matrix, classification_report, precision_score, recall_score
+import pandas as pd
 
 # a modification of run_glue.py, found here: https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py
 def binary_trainer(model, train_dataset, validation_dataset, epochs, learning_rate, batch_size,
